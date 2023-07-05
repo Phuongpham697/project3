@@ -1,5 +1,7 @@
 package jmaster.io.project3.controller;
 
+import java.util.List;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,14 +30,20 @@ public class CategoryController {
 	@Autowired
 	CategoryService categoryService;
 
-	// jackson
-	@PostMapping("/")
+
+	@PostMapping("/new")
 	@ResponseStatus(HttpStatus.CREATED)
 	public ResponseDTO<CategoryDTO> add(@RequestBody @Valid CategoryDTO category) {
 		categoryService.create(category);
 		return ResponseDTO.<CategoryDTO>builder().status(200).data(category).build();
 	}
-
+	
+	@GetMapping("/list")
+	public ResponseDTO<List<CategoryDTO>> listCategory() {
+			List<CategoryDTO> listCategoryDTOs=categoryService.getAll();
+			return ResponseDTO.<List<CategoryDTO>>builder().status(200).data(listCategoryDTOs).build();
+	}
+	
 	@GetMapping("/search")
 	public ResponseDTO<PageDTO<CategoryDTO>> search(
 @RequestBody @Valid SearchDTO searchDTO) {
@@ -45,19 +54,19 @@ public class CategoryController {
 				.build();
 	}
 
-	@GetMapping("/{id}") // 10
+	@GetMapping("/{id}") 
 	public ResponseDTO<CategoryDTO> get(@PathVariable("id") int id) {
 		CategoryDTO categoryDTO = categoryService.getById(id);
 		return ResponseDTO.<CategoryDTO>builder().status(200).data(categoryDTO).build();
 	}
 
-	@DeleteMapping("/{id}") // /1
+	@DeleteMapping("/delete/{id}")
 	public ResponseDTO<Void> delete(@PathVariable("id") int id) {
 		categoryService.delete(id);
 		return ResponseDTO.<Void>builder().status(200).build();
 	}
 
-	@PutMapping("/")
+	@PutMapping("/update")
 	public ResponseDTO<Void> update(@RequestBody @Valid CategoryDTO category) {
 		categoryService.update(category);
 		return ResponseDTO.<Void>builder().status(200).build();

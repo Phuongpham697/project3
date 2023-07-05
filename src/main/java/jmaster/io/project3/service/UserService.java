@@ -15,8 +15,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jmaster.io.project3.dto.PageDTO;
+import jmaster.io.project3.dto.RoleDTO;
 import jmaster.io.project3.dto.SearchDTO;
 import jmaster.io.project3.dto.UserDTO;
+import jmaster.io.project3.entity.Role;
 import jmaster.io.project3.entity.User;
 import jmaster.io.project3.repo.RoleRepo;
 import jmaster.io.project3.repo.UserRepo;
@@ -98,17 +100,23 @@ public class UserService {
 		pageDTO.setTotalPages(pageRS.getTotalPages());
 		pageDTO.setTotalElements(pageRS.getTotalElements());
 
-		// java 8 : lambda, stream
+
 		List<UserDTO> userDTOs = pageRS.get().map(user -> new ModelMapper().map(user, UserDTO.class))
 				.collect(Collectors.toList());
 
-		pageDTO.setContents(userDTOs);// set vao pagedto
+		pageDTO.setContents(userDTOs);
 		return pageDTO;
 	}
 
-	public UserDTO getById(int id) { // java8, optinal
-		User user = userRepo.findById(id).orElseThrow(NoResultException::new);// java8 lambda
+	public UserDTO getById(int id) {
+		User user = userRepo.findById(id).orElseThrow(NoResultException::new);
 		return new ModelMapper().map(user, UserDTO.class);
+	}
+	
+	public List<UserDTO> getAll() { 
+		List<User> userList = userRepo.findAll();
+		return userList.stream().map(u -> convert(u))
+				.collect(Collectors.toList());
 	}
 
 	public UserDTO findByUsername(String username) { // java8, optinal
@@ -117,5 +125,10 @@ public class UserService {
 			throw new NoResultException();
 		return new ModelMapper().map(user, UserDTO.class);
 	}
+	
+	private UserDTO convert(User user) {
+		return new ModelMapper().map(user, UserDTO.class);
+	}
+
 
 }

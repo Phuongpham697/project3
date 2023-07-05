@@ -1,5 +1,6 @@
 package jmaster.io.project3.service;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.persistence.NoResultException;
@@ -18,7 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
 import jmaster.io.project3.dto.CategoryDTO;
 import jmaster.io.project3.dto.PageDTO;
 import jmaster.io.project3.dto.SearchDTO;
+import jmaster.io.project3.dto.UserDTO;
 import jmaster.io.project3.entity.Category;
+import jmaster.io.project3.entity.User;
 import jmaster.io.project3.repo.CategoryRepo;
 
 @Service
@@ -72,14 +75,21 @@ public class CategoryService {
 	}
 
 	@Cacheable(cacheNames = "categories", key = "#id", unless = "#result == null")
-	public CategoryDTO getById(int id) { // java8, optinal
+	public CategoryDTO getById(int id) {
 		Category category = categoryRepo.findById(id).orElseThrow(NoResultException::new);// java8 lambda
 		return convert(category);
 	}
 	
-
+	
+	public List<CategoryDTO> getAll() {
+		List<Category> listCategory = categoryRepo.findAll();
+		return listCategory.stream().map(u -> convert(u))
+				.collect(Collectors.toList());
+	}
+	
 	private CategoryDTO convert(Category category) {
 		return new ModelMapper().map(category, CategoryDTO.class);
 	}
+
 
 }

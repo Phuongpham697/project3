@@ -3,6 +3,7 @@ package jmaster.io.project3.controller;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.List;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
@@ -27,7 +28,7 @@ import jmaster.io.project3.dto.UserDTO;
 import jmaster.io.project3.service.UserService;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/admin/user")
 public class UserController {
 	@Autowired
 	UserService userService;
@@ -35,18 +36,36 @@ public class UserController {
 	@PostMapping("/new")
 	public ResponseDTO<UserDTO> add(@ModelAttribute @Valid UserDTO userDTO) throws IllegalStateException, IOException {
 		if (!userDTO.getFile().isEmpty()) {
-			// ten file upload
 			String filename = userDTO.getFile().getOriginalFilename();
-			// luu lai file vao o cung may chu
 			File saveFile = new File("D:/project/" + filename);
 			userDTO.getFile().transferTo(saveFile);
-			// lay ten file luu xuong DATABASE
 			userDTO.setAvatar(filename);
 		}
 
 		userService.create(userDTO);
 		return ResponseDTO.<UserDTO>builder().status(200).data(userDTO).build();
 	}
+	
+	@PutMapping("/")
+	public ResponseDTO<Void> update(@ModelAttribute @Valid UserDTO userDTO) throws IllegalStateException, IOException {
+		if (!userDTO.getFile().isEmpty()) {
+			String filename = userDTO.getFile().getOriginalFilename();
+			File saveFile = new File("D:/project/" + filename);
+			userDTO.getFile().transferTo(saveFile);
+			userDTO.setAvatar(filename);
+		}
+
+		userService.update(userDTO);
+
+		return ResponseDTO.<Void>builder().status(200).build();
+	}
+	@GetMapping("/list")
+	public ResponseDTO<List<UserDTO>> lisUsers(){
+		List<UserDTO> lisUserDTO = userService.getAll();
+		return ResponseDTO.<List<UserDTO>>builder().status(200).data(lisUserDTO).build();
+		
+	}
+
 
 	@GetMapping("/download/{filename}")
 	public void download(@PathVariable("filename") String filename, HttpServletResponse response) throws IOException {
@@ -63,7 +82,7 @@ public class UserController {
 				.build();
 	}
 
-	@GetMapping("/{id}") // 10
+	@GetMapping("/{id}")
 	public ResponseDTO<UserDTO> get(@PathVariable("id") int id) {
 		UserDTO userDTO = userService.getById(id);
 		return ResponseDTO.<UserDTO>builder().status(200).data(userDTO).build();
@@ -75,22 +94,6 @@ public class UserController {
 		return ResponseDTO.<Void>builder().status(200).build();
 	}
 
-	@PutMapping("/")
-	public ResponseDTO<Void> update(@ModelAttribute @Valid UserDTO userDTO) throws IllegalStateException, IOException {
-		if (!userDTO.getFile().isEmpty()) {
-			// ten file upload
-			String filename = userDTO.getFile().getOriginalFilename();
-			// luu lai file vao o cung may chu
-			File saveFile = new File("D:/project/" + filename);
-			userDTO.getFile().transferTo(saveFile);
-			// lay ten file luu xuong DATABASE
-			userDTO.setAvatar(filename);
-		}
-
-		userService.update(userDTO);
-
-		return ResponseDTO.<Void>builder().status(200).build();
-	}
 
 	@PutMapping("/password")
 	public ResponseDTO<Void> updatePassword(

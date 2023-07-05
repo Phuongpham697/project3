@@ -53,7 +53,7 @@ public class SecurityConfig {
 				.anyRequest().permitAll()
 
 				.and().csrf().disable()
-				//bo session vi lam REST API ko can
+				
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
 				.and().httpBasic();

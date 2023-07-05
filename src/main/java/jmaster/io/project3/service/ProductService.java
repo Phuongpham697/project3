@@ -19,8 +19,11 @@ import org.springframework.transaction.annotation.Transactional;
 import jmaster.io.project3.dto.CategoryDTO;
 import jmaster.io.project3.dto.PageDTO;
 import jmaster.io.project3.dto.ProductDTO;
+import jmaster.io.project3.dto.SearchDTO;
+import jmaster.io.project3.dto.UserDTO;
 import jmaster.io.project3.entity.Category;
 import jmaster.io.project3.entity.Product;
+import jmaster.io.project3.entity.User;
 import jmaster.io.project3.repo.CategoryRepo;
 import jmaster.io.project3.repo.ProductRepo;
 
@@ -41,55 +44,48 @@ public class ProductService {
 		
 		Product product = new ModelMapper().map(productDTO, Product.class);
 		product.setCategory(category);
-		
 		productRepo.save(product);
-		
-		//tra ve id sau khi tao
 		productDTO.setId(product.getId());
 	}
 
-	@Transactional
-	@Caching(evict = {
-			@CacheEvict(cacheNames = "categories", key = "#categoryDTO.id"),
-			@CacheEvict(cacheNames = "category-search", allEntries = true)
-	})
-	public void update(CategoryDTO categoryDTO) {
-		Category category = categoryRepo.findById(categoryDTO.getId()).orElseThrow(NoResultException::new);
-		category.setName(categoryDTO.getName());
-		categoryRepo.save(category);
+	public void update(ProductDTO productDTO) {
+		Product product = productRepo.findById(productDTO.getId()).orElseThrow(NoResultException::new);
+		product.setName(product.getName());
+		productRepo.save(product);
 	}
 
-	@Transactional
-	@Caching(evict = {
-			@CacheEvict(cacheNames = "categories", key = "#id"),
-			@CacheEvict(cacheNames = "category-search", allEntries = true)
-	})
 	public void delete(int id) {
-		categoryRepo.deleteById(id);
+		productRepo.deleteById(id);
 	}
 
-	@Cacheable(cacheNames = "category-search")
-	public PageDTO<CategoryDTO> searchByName(String name, int page, int size) {
-		Pageable pageable = PageRequest.of(page, size);
+	public PageDTO<ProductDTO> search(SearchDTO searchDTO) {
+		Pageable pageable = PageRequest.of(searchDTO.getCurrentPage(), searchDTO.getSize());
 
-		Page<Category> pageRS = categoryRepo.searchByName("%" + name + "%", pageable);
+		Page<Product> pageRS = productRepo.searchByName(searchDTO.getKeyword(), pageable);
 
-		PageDTO<CategoryDTO> pageDTO = new PageDTO<>();
-		pageDTO.setTotalPages(pageRS.getTotalPages());
-		pageDTO.setTotalElements(pageRS.getTotalElements());
-
-		// java 8 : lambda, stream
-		List<CategoryDTO> categoryDTOs = pageRS.get()
-				.map(category -> new ModelMapper().map(category, CategoryDTO.class)).collect(Collectors.toList());
-
-		pageDTO.setContents(categoryDTOs);// set vao pagedto
-		return pageDTO;
+		return PageDTO.<ProductDTO>builder()
+				.totalPages(pageRS.getTotalPages())
+				.totalElements(pageRS.getTotalElements())
+				.contents(pageRS.get()
+						.map(r -> convert(r)).collect(Collectors.toList()))
+				.build();
 	}
-
-	@Cacheable(cacheNames = "categories", key = "#id", unless = "#result == null")
-	public CategoryDTO getById(int id) { // java8, optinal
-		Category category = categoryRepo.findById(id).orElseThrow(NoResultException::new);// java8 lambda
-		return new ModelMapper().map(category, CategoryDTO.class);
+	
+	public List<ProductDTO> getAll() {
+		List<Product> listCategory = productRepo.findAll();
+		return listCategory.stream().map(u -> convert(u))
+				.collect(Collectors.toList());
 	}
+	
+	private ProductDTO convert(Product product) {
+		return new ModelMapper().map(product, ProductDTO.class);
+	}
+	
+	public ProductDTO getById(int id) {
+		Product product = productRepo.findById(id).orElseThrow(NoResultException::new);
+		return new ModelMapper().map(product, ProductDTO.class);
+	}
+	
+	
 
 }

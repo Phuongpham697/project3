@@ -34,58 +34,12 @@ public class BillController {
 	@Autowired
 	UserService userService;
 
-	// admin tao don cho khach hang
-	/*
-	 * {
-		    "user": {
-		        "id": 6
-		    },
-		    "billItems": [
-		        {
-		            "quantity":10,
-		            "price": 5000,
-		            "product": {
-		                "id": 2
-		            }
-		        },
-		        {
-		            "quantity":5,
-		            "price": 1000,
-		            "product": {
-		                "id": 3
-		            }
-		        }
-		    ]
-		}
-	 */
 	@PostMapping("/admin/bill")
-	@ResponseStatus(HttpStatus.CREATED)
 	public ResponseDTO<BillDTO> add(@RequestBody @Valid BillDTO billDTO) {
 		billService.create(billDTO);
 		return ResponseDTO.<BillDTO>builder().status(200).data(billDTO).build();
 	}
 	
-	//tu tay khach hang tao don
-	/*
-	 * {
-		    "billItems": [
-		        {
-		            "quantity":10,
-		            "price": 5000,
-		            "product": {
-		                "id": 2
-		            }
-		        },
-		        {
-		            "quantity":5,
-		            "price": 1000,
-		            "product": {
-		                "id": 3
-		            }
-		        }
-		    ]
-		}
-	 */
 	@PostMapping("/customer/bill")
 	@ResponseStatus(HttpStatus.CREATED)
 	public ResponseDTO<BillDTO> add(@RequestBody @Valid BillDTO billDTO,

@@ -24,13 +24,12 @@ public class Bill extends TimeAuditable {
 //	@CreatedDate // tu gen
 //	@Column(updatable = false)
 //	private Date buyDate;
-	
-	private String status;//NEW, PENDING, ACTIVE
+
+	private String status;// NEW, PENDING, ACTIVE
 
 	@ManyToOne
 	private User user;
 
-	@OneToMany(mappedBy = "bill", cascade = CascadeType.ALL, 
-			orphanRemoval = true)
+	@OneToMany(mappedBy = "bill", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<BillItem> billItems;
 }
