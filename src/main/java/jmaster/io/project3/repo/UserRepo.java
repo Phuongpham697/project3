@@ -15,11 +15,13 @@ public interface UserRepo extends JpaRepository<User, Integer> {
 
 	User findByUsername(String username);
 
-	@Query("SELECT u FROM User u WHERE "
-			+ "MONTH(u.birthdate) = :month AND DAY(u.birthdate) = :date ")
-	List<User> searchByBirthday(
-			@Param("date") int date,
-			@Param("month") int month);
+//	@Query("SELECT u FROM User u WHERE "
+//			+ "MONTH(u.birthdate) = :month AND DAY(u.birthdate) = :date ")
+//	List<User> searchByBirthday(
+//			@Param("date") int date,
+//			@Param("month") int month);
+	@Query("SELECT u FROM User u WHERE MONTH(u.birthdate) =:month AND DAY(u.birthdate) =:date")
+	List<User> searchByBirthday(@Param("date") int date, @Param("month") int month);
 
 	@Query("SELECT u FROM User u WHERE u.name LIKE :x ")
 	Page<User> searchByName(@Param("x") String s, Pageable pageable);

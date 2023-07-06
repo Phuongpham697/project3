@@ -1,11 +1,26 @@
-//package jmaster.io.project3.service;
+package jmaster.io.project3.service;
+
+import java.sql.Date;
+import java.util.Calendar;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+import jmaster.io.project3.entity.Bill;
+import jmaster.io.project3.entity.User;
+import jmaster.io.project3.repo.BillRepo;
+import jmaster.io.project3.repo.UserRepo;
+import lombok.extern.slf4j.Slf4j;
+
 //
 //import java.util.Calendar;
 //import java.util.Date;
 //import java.util.List;
 //
 //import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.scheduling.annotation.Scheduled;
+
 //import org.springframework.stereotype.Component;
 //
 //import jmaster.io.project3.entity.Bill;
@@ -13,8 +28,35 @@
 //import jmaster.io.project3.repo.BillRepo;
 //import jmaster.io.project3.repo.UserRepo;
 //
-//@Component
-//public class JobScheduler {
+@Component
+@Slf4j
+public class JobScheduler {
+
+	@Autowired
+	MailService mailService;
+	
+	@Autowired
+	UserRepo userRepo;
+	
+	@Autowired
+	BillRepo billRepo;
+	
+	//Happy birthday today
+	@Scheduled(cron = "0 35 14 * * *")
+	public void cron() {
+		log.info("hello");
+		Calendar calendar= Calendar.getInstance();
+		int date= calendar.get(Calendar.DATE);
+		int month= calendar.get(Calendar.MONTH) +1;		
+		List<User> listUsers= userRepo.searchByBirthday(date, month);
+		for(User u:listUsers) {
+			mailService.sendBirthday(u.getEmail());
+			log.info("happy birthday:" +u.getName());
+		}
+		
+	}
+	
+	
 //	@Autowired
 //	UserRepo userRepo;
 //
@@ -28,21 +70,21 @@
 //	// khoản email của mình,
 //	// (Đơn hàng mới là ngày tạo > ngày hiện tại - 5 phút )
 //	// gợi ý: Viết hàm jpql tìm bill theo buyDate > :date
-//	@Scheduled(fixedDelay = 1000 * 60 * 5)
-//	public void sendAdminEmail() {
-//		// chi gio hien tai - 5 phut
-//		Calendar cal = Calendar.getInstance();
-//		cal.add(Calendar.MINUTE, -5);
-//		Date date = cal.getTime();
-//
-//		List<Bill> bills = billRepo.searchByDate(date);
-//
-//		for (Bill b : bills) {
-//			System.out.println(b.getId());
-//
-//			mailService.sendEmail("ADMIN@gmail.com", "BILL ID " + b.getId(), "aa");
-//		}
-//
+	@Scheduled(fixedDelay = 1000 * 60 * 5)
+	public void sendAdminEmail() {
+		// chi gio hien tai - 5 phut
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.MINUTE, -5);
+		java.util.Date date =  cal.getTime();
+
+		List<Bill> bills = billRepo.searchByDate(date);
+		log.info("hello");
+		for (Bill b : bills) {
+			System.out.println(b.getId());
+
+			mailService.sendEmail("phuongphamdinh@gmail.com", "BILL ID " + b.getId(), "Co don hang moi");
+		}
+	}
 //	}
 //
 //	// GUI EMAIL SINH NHAT
@@ -63,4 +105,4 @@
 //			mailService.sendEmail(u.getEmail(), "HPBD", "aa");
 //		}
 //	}
-//}
+}

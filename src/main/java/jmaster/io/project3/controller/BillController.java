@@ -1,6 +1,7 @@
 package jmaster.io.project3.controller;
 
 import java.security.Principal;
+import java.util.List;
 
 import javax.validation.Valid;
 
@@ -22,10 +23,14 @@ import jmaster.io.project3.dto.PageDTO;
 import jmaster.io.project3.dto.ResponseDTO;
 import jmaster.io.project3.dto.SearchDTO;
 import jmaster.io.project3.dto.UserDTO;
+import jmaster.io.project3.entity.User;
 import jmaster.io.project3.service.BillService;
+import jmaster.io.project3.service.MailService;
 import jmaster.io.project3.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
+@Slf4j
 public class BillController {
 
 	@Autowired
@@ -33,10 +38,20 @@ public class BillController {
 	
 	@Autowired
 	UserService userService;
+	
+	@Autowired
+	MailService mailService;
 
 	@PostMapping("/admin/bill")
 	public ResponseDTO<BillDTO> add(@RequestBody @Valid BillDTO billDTO) {
 		billService.create(billDTO);
+		//lấy ra email của người dùng khi tạo bill để gửi email thông báo
+		int id=billDTO.getUser().getId();
+		UserDTO userDTO= userService.getById(id) ;
+		log.info(userDTO.getEmail());
+		//sendEmail khi tao bill moi
+		mailService.sendEmailBill(userDTO.getEmail());
+		
 		return ResponseDTO.<BillDTO>builder().status(200).data(billDTO).build();
 	}
 	
