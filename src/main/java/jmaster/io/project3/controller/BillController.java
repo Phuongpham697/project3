@@ -1,8 +1,11 @@
 package jmaster.io.project3.controller;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.AddressException;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +46,7 @@ public class BillController {
 	MailService mailService;
 
 	@PostMapping("/admin/bill")
-	public ResponseDTO<BillDTO> add(@RequestBody @Valid BillDTO billDTO) {
+	public ResponseDTO<BillDTO> add(@RequestBody @Valid BillDTO billDTO) throws AddressException, MessagingException, IOException {
 		billService.create(billDTO);
 		//lấy ra email của người dùng khi tạo bill để gửi email thông báo
 		int id=billDTO.getUser().getId();
@@ -51,7 +54,7 @@ public class BillController {
 		log.info(userDTO.getEmail());
 		//sendEmail khi tao bill moi
 		mailService.sendEmailBill(userDTO.getEmail());
-		
+
 		return ResponseDTO.<BillDTO>builder().status(200).data(billDTO).build();
 	}
 	
