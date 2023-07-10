@@ -14,6 +14,8 @@ import jmaster.io.project3.entity.User;
 public interface UserRepo extends JpaRepository<User, Integer> {
 
 	User findByUsername(String username);
+	
+	User findByEmail(String email);
 
 //	@Query("SELECT u FROM User u WHERE "
 //			+ "MONTH(u.birthdate) = :month AND DAY(u.birthdate) = :date ")

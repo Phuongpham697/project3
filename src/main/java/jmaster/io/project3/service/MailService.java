@@ -71,5 +71,9 @@ public class MailService {
 		javaMailSender.send(message);
 	}
 	
+	public void sendSetPasswordEmail(String email) throws AddressException, MessagingException, IOException {
+		sendEmail(email, "Quen mat khau", "click to url");
+	}
+	
 
 }

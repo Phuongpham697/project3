@@ -1,8 +1,11 @@
 package jmaster.io.project3.service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.AddressException;
 import javax.persistence.NoResultException;
 
 import org.modelmapper.ModelMapper;
@@ -31,6 +34,9 @@ public class UserService {
 
 	@Autowired
 	RoleRepo roleRepo;
+	
+	@Autowired
+	MailService mailService;
 
 	@Transactional
 	public void create(UserDTO userDTO) {
@@ -129,6 +135,25 @@ public class UserService {
 	private UserDTO convert(User user) {
 		return new ModelMapper().map(user, UserDTO.class);
 	}
+	
+	public UserDTO forgotPassword(String email) throws AddressException, MessagingException, IOException {
+		User user=userRepo.findByEmail(email);
+		if (user == null) 
+			throw new NoResultException();
+		mailService.sendSetPasswordEmail(email);
+		return new ModelMapper().map(user, UserDTO.class);
+	
+	}
+	
 
+	public String setPassword(String email, String newPassword){
+		User user=userRepo.findByEmail(email);
+		if (user == null) 
+			throw new NoResultException();
+		user.setPassword(new BCryptPasswordEncoder().encode(newPassword));
+		userRepo.save(user);
+		return " new password set successfully with new password";
+	}
 
+	
 }

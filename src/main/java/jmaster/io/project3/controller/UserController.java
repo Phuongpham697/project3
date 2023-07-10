@@ -6,11 +6,16 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.UUID;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.AddressException;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import org.apache.logging.log4j.util.StringBuilderFormattable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -18,7 +23,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jmaster.io.project3.dto.PageDTO;
@@ -101,4 +109,20 @@ public class UserController {
 		userService.updatePassword(userDTO);
 		return ResponseDTO.<Void>builder().status(200).build();
 	}
+	
+	
+	//quên mật khẩu
+	@PutMapping("/forgot-password")
+	public ResponseEntity<UserDTO> forgotPassword(@RequestParam String email) throws AddressException, MessagingException, IOException {
+		userService.forgotPassword(email);
+		return new ResponseEntity<>(userService.forgotPassword(email), HttpStatus.OK);
+	}
+	
+	//đặt lại mật khẩu với email đăng nhập
+	@PutMapping("/set-password")
+	public ResponseEntity<String> setPassword(@RequestParam String email, @RequestHeader String newPassword){
+		return new ResponseEntity<>(userService.setPassword(email, newPassword), HttpStatus.OK);
+	}
+	
+	
 }
