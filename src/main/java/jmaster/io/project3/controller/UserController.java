@@ -114,7 +114,6 @@ public class UserController {
 	//quên mật khẩu
 	@PutMapping("/forgot-password")
 	public ResponseEntity<UserDTO> forgotPassword(@RequestParam String email) throws AddressException, MessagingException, IOException {
-		userService.forgotPassword(email);
 		return new ResponseEntity<>(userService.forgotPassword(email), HttpStatus.OK);
 	}
 	

@@ -16,12 +16,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring5.SpringTemplateEngine;
 
 @Service
 public class MailService {
 	
 	@Autowired
 	JavaMailSender javaMailSender;
+	
+	@Autowired
+	SpringTemplateEngine templateEngine;
 	
 	public void sendEmailBill(String to) throws AddressException, MessagingException, IOException {
 		String subject= "<h1>Thong bao don hang</h1>";
@@ -43,7 +48,7 @@ public class MailService {
 		try {
 			helper.setTo(to);
 			helper.setSubject(subject);
-			helper.setText(body);
+			helper.setText(body,true);
 			helper.setFrom("phuongphamdinh@gmail.com");
 			javaMailSender.send(message);
 		} catch (MessagingException e) {
@@ -71,8 +76,11 @@ public class MailService {
 		javaMailSender.send(message);
 	}
 	
-	public void sendSetPasswordEmail(String email) throws AddressException, MessagingException, IOException {
-		sendEmail(email, "Quen mat khau", "click to url");
+	public void sendSetPasswordEmail(String email, String name) throws AddressException, MessagingException, IOException {
+		Context ctx= new Context();
+		ctx.setVariable("name", name);
+		String body=templateEngine.process("email/emailtemplate.html", ctx);
+		sendEmail(email, "Quen mat khau", body);
 	}
 	
 

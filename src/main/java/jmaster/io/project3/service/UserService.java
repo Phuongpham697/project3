@@ -140,7 +140,7 @@ public class UserService {
 		User user=userRepo.findByEmail(email);
 		if (user == null) 
 			throw new NoResultException();
-		mailService.sendSetPasswordEmail(email);
+		mailService.sendSetPasswordEmail(email,"Verify email");
 		return new ModelMapper().map(user, UserDTO.class);
 	
 	}
